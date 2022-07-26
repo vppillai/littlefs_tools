@@ -98,3 +98,9 @@ pip install dist/littlefs_tools-1.0.0-py2.py3-none-any.whl  --force
 ```
 
 > Note: The wheel package must match the version of the package. The version of the package is determined by the version of the package in the `setup.py` file.
+
+Source distribution is created with the following command:
+
+```bash
+python setup.py sdist
+```
