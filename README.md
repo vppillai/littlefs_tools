@@ -1,4 +1,4 @@
-# lfs_create
+# littlefs_create
 
 Tool to package the contents of a folder into a [littleFS](https://github.com/littlefs-project/littlefs) binary image.
 
