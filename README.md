@@ -82,3 +82,19 @@ required arguments:
   -d DESTINATION, --destination DESTINATION
                         destination directory to extract the contents into
 ```
+
+## Building the package locally
+
+The tools package can be built locally using the following command:
+
+```bash
+python setup.py bdist_wheel --universal
+```
+
+And then installed with 
+
+```bash
+pip install dist/littlefs_tools-1.0.0-py2.py3-none-any.whl  --force
+```
+
+> Note: The wheel package must match the version of the package. The version of the package is determined by the version of the package in the `setup.py` file.
