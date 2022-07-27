@@ -2,7 +2,7 @@
 
 Tools create, view and extract [littleFS](https://github.com/littlefs-project/littlefs) filesystem images.
 
-Though distributed as a python module, these tools are intented to be executed as a commandline tools. Invocation commands are provided below.
+Though distributed as a python module, these tools are intended to be executed as a command-line tool. Invocation commands are provided below.
 
 ## Installation
 
