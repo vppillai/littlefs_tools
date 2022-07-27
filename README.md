@@ -18,7 +18,7 @@ pip install littlefs_tools
 
 ### littlefs_create
 
-Tool to create a littleFS filesystem binary image.
+Tool to create a littleFS filesystem binary image. This tool recursively packages the contents of a source directory into a littlefs image. 
 
 ```bash
 usage: littlefs_create [-h] [-b BLOCKSIZE] [-c BLOCKCOUNT] [-i IMAGE] [-v] -s SOURCE
