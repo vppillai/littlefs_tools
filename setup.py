@@ -30,7 +30,6 @@ setup(
         "Topic :: Scientific/Engineering",
         "Topic :: System :: Filesystems",
         "Operating System :: POSIX :: Linux",
-        "Operating System :: MacOS",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
