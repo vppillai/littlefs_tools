@@ -34,7 +34,10 @@ jobs:
     - name: Install wheel
       run: |
         ls dist
-        pip install dist/littlefs_tools-*.whl  --force
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          python -m pip install dist\littlefs_tools*.whl --force
+        else
+          python -m pip install dist/littlefs_tools-*.whl  --force
     - name: run command help
       run: |
         littlefs_create -h
