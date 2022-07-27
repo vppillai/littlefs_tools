@@ -1,5 +1,7 @@
 # littlefs_tools
 
+![](https://github.com/vppillai/littlefs_tools/workflows/Build_Tests/badge.svg)
+
 Tools create, view and extract [littleFS](https://github.com/littlefs-project/littlefs) filesystem images.
 
 Though distributed as a python module, these tools are intended to be executed as a command-line tool. Consequently, the code is written into a single python file without classes. The Invocation commands are provided below.
