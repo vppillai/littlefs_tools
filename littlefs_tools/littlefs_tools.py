@@ -44,7 +44,7 @@ def _print_tree(fs, path):
                 _print_tree(fs, f"{path}/{item.name}")
             else:
                 print(
-                    f"  {depth*'    '}└──{item.name} {('',f'({sizeof_fmt(item.size)})')[item.type==1]}"
+                    f"  {depth*'    '}{Fore.RED}*---{Fore.YELLOW}{item.name} {('',f'({sizeof_fmt(item.size)})')[item.type==1]}"
                 )
     except Exception as e:
         logger.critical(e)
