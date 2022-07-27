@@ -32,12 +32,14 @@ jobs:
         python setup.py sdist
         python setup.py bdist_wheel --universal
     - name: Install wheel
+      if: ${{ matrix.os == 'windows-latest' }}
       run: |
         ls dist
-        if: matrix.os == 'windows-latest'
-          python -m pip install dist\littlefs_tools*.whl --force
-        else:
-          python -m pip install dist/littlefs_tools-*.whl  --force
+        python -m pip install dist\littlefs_tools*.whl --force
+      if: ${{ matrix.os != 'windows-latest' }}
+      run: |
+        ls dist
+        python -m pip install dist/littlefs_tools-*.whl  --force
     - name: run command help
       run: |
         littlefs_create -h
