@@ -38,3 +38,7 @@ jobs:
         littlefs_create -h
         littlefs_list -h
         littlefs_extract -h
+    - name: Run functional tests
+      run: |
+        cd test
+        ./test.sh

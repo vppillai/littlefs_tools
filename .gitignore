@@ -1,0 +1,6 @@
+venv
+build/
+dist/
+littlefs_tools.egg-info/
+.vscode
+test/testSource*
