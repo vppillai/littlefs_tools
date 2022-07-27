@@ -15,11 +15,11 @@ setup(
     author_email='vysakhpillai@embeddedinn.xyz',
     license='MIT',
     packages=['littlefs_tools'],
-    install_requires=['littlefs-python'],
+    install_requires=['littlefs-python','colorama'],
     entry_points = {
               'console_scripts': [
                 'littlefs_list=littlefs_tools.littlefs_tools:list_files',
-                'littlefs_create=littlefs_tools.littlefs_tools:main_entry',
+                'littlefs_create=littlefs_tools.littlefs_tools:create_image',
                 'littlefs_extract=littlefs_tools.littlefs_tools:extract_files',
               ],              
           },
