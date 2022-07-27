@@ -31,4 +31,9 @@ jobs:
         python setup.py bdist_wheel --universal
     - name: Install wheel
       run: |
-        pip install dist/littlefs_tools-*-py2.py3-none-any.whl  --force
+        pip install dist/littlefs_tools-*.whl  --force
+    - name: run command help
+      run: |
+        littlefs_create -h
+        littlefs_list -h
+        littlefs_extract -h
