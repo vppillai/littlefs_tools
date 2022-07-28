@@ -234,7 +234,7 @@ def globPath(args):
                         while byte:
                             fh.write(byte)
                             byte = file.read(1)
-        print(f"\nTotal Contents size = {contentSize} Bytes")
+        print(f"\nTotal Contents size = {sizeof_fmt(contentSize)}")
 
         # Dump the filesystem content to a file
         with open(args.image, "wb") as fh:
@@ -282,5 +282,5 @@ def create_image():
     globPath(args)
 
     print(
-        f"Created `{args.image}` of size [{args.blockSize} x {args.blockCount}] = {args.blockSize*args.blockCount} Bytes"
+        f"Created `{args.image}` of size [{args.blockSize} x {args.blockCount}] = {sizeof_fmt(args.blockSize*args.blockCount)}"
     )

@@ -38,7 +38,10 @@ jobs:
         littlefs_create -h
         littlefs_list -h
         littlefs_extract -h
-    - name: Run functional tests
+    - name: Run functional tests - default options
       run: |
         cd test
         ./test.sh
+    - name: Run functional tests - large file
+      run: |
+        ./test_large.sh
