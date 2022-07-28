@@ -44,4 +44,5 @@ jobs:
         ./test.sh
     - name: Run functional tests - large file
       run: |
+        cd test
         ./test_large.sh
