@@ -1,4 +1,4 @@
-# littlefs_tools
+# littlefs-tools
 
 [![Build Result](https://github.com/vppillai/littlefs_tools/workflows/Build_Tests/badge.svg)](https://github.com/vppillai/littlefs_tools/actions)
 [![PIP Version](https://badge.fury.io/py/littlefs-tools.svg)](https://badge.fury.io/py/littlefs-tools)
