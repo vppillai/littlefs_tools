@@ -111,4 +111,4 @@ python setup.py sdist
 ```
 
 -----------------
-_littlefs-tools_  |  _ലിറ്റിലെഫ്എസ്-ടൂൾസ്_
+_littlefs-tools_  |  _ലിറ്റിലെഫ്എസ്-ഉപകരണങ്ങൾ_
