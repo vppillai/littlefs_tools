@@ -46,7 +46,7 @@ required arguments:
 Tool to list contents of a littleFS filesystem image as a tree.
 
 ```bash
-usage: littlefs_list [-h] [-b BLOCKSIZE] [-c BLOCKCOUNT] [-v] -i IMAGE
+usage: littlefs_list [-h] [-b BLOCKSIZE] [-c BLOCKCOUNT] [-o OFFSET] [-v] -i IMAGE
 
 Tool to list files in a littlefs file image
 
@@ -56,6 +56,8 @@ optional arguments:
                         block size of the LFS image (defaults to 4096)
   -c BLOCKCOUNT, --block_count BLOCKCOUNT
                         block Count of the LFS image (defaults to 64)
+  -o OFFSET, --offset OFFSET
+                        offset (in bytes) from which the littlefs image starts(defaults to 0). Hex values are supported (e.g. 0x80000)
   -v, --verbose         Verbose
 
 required arguments:
@@ -68,7 +70,7 @@ required arguments:
 Tool to extract contents of a littleFS filesystem image to a destination folder.
 
 ```bash
-usage: littlefs_extract [-h] [-b BLOCKSIZE] [-c BLOCKCOUNT] [-f] [-v] -i IMAGE -d DESTINATION
+usage: littlefs_extract [-h] [-b BLOCKSIZE] [-c BLOCKCOUNT] [-f] [-o OFFSET] [-v] -i IMAGE -d DESTINATION
 
 Tool to extract files from a littlefs file image
 
@@ -79,6 +81,8 @@ optional arguments:
   -c BLOCKCOUNT, --block_count BLOCKCOUNT
                         block Count of the LFS image (defaults to 64)
   -f, --force           Force extract even if destination folder is not empty
+  -o OFFSET, --offset OFFSET
+                        offset (in bytes) from which the littlefs image starts(defaults to 0). Hex values are supported (e.g. 0x80000)
   -v, --verbose         Verbose
 
 required arguments:

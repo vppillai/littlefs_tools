@@ -32,6 +32,11 @@ def sizeof_fmt(num, suffix="B"):
         num /= 1024.0
     return f"{num:.1f}Yi{suffix}"
 
+def _offset_to_int(offset):
+    if offset.startswith("0x"):
+        return int(offset, 16)
+    else:
+        return int(offset)
 
 def _print_tree(fs, path):
     try:
@@ -57,6 +62,7 @@ def _lsfiles(args):
             block_size=args.blockSize, block_count=args.blockCount, mount=False
         )
         with open(args.image, "rb") as fh:
+            fh.seek(args.offset)
             fs.context.buffer = bytearray(fh.read())
         fs.mount()
         print(f"{Fore.GREEN}{args.image}")
@@ -87,6 +93,14 @@ def list_files():
         type=int,
         default=64,
     )
+    parser.add_argument(
+        "-o",
+        "--offset",
+        dest="offset",
+        help="offset (in bytes) from which the littlefs image starts(defaults to 0). Hex values are supported (e.g. 0x80000)",
+        type=str,
+        default="0",
+    )
     parser.add_argument("-v", "--verbose", help="Verbose", action="store_true")
 
     requiredNamed = parser.add_argument_group("required arguments")
@@ -96,6 +110,7 @@ def list_files():
     args = parser.parse_args()
 
     set_log_level(args.verbose)
+    args.offset = _offset_to_int(args.offset)
 
     _lsfiles(args)
 
@@ -137,6 +152,7 @@ def _extract_files(args):
             block_size=args.blockSize, block_count=args.blockCount, mount=False
         )
         with open(args.image, "rb") as fh:
+            fh.seek(args.offset)
             fs.context.buffer = bytearray(fh.read())
         fs.mount()
         Path(args.destination).mkdir(parents=True, exist_ok=True)
@@ -174,6 +190,14 @@ def extract_files():
         help="Force extract even if destination folder is not empty",
         action="store_true",
     )
+    parser.add_argument(
+        "-o",
+        "--offset",
+        dest="offset",
+        help="offset (in bytes) from which the littlefs image starts(defaults to 0). Hex values are supported (e.g. 0x80000)",
+        type=str,
+        default="0",
+    )
     parser.add_argument("-v", "--verbose", help="Verbose", action="store_true")
 
     requiredNamed = parser.add_argument_group("required arguments")
@@ -190,6 +214,7 @@ def extract_files():
     args = parser.parse_args()
 
     set_log_level(args.verbose)
+    args.offset = _offset_to_int(args.offset)
 
     _extract_files(args)
 

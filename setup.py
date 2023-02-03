@@ -6,7 +6,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="littlefs_tools",
-    version="1.0.5",
+    version="1.1.0",
     description="Python package to create littleFS filesystem image binaries",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -31,12 +31,10 @@ setup(
         "Topic :: System :: Filesystems",
         "Operating System :: POSIX :: Linux",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10"
+        "Programming Language :: Python :: 3.11"
     ],
 )
