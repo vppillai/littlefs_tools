@@ -263,7 +263,7 @@ def globPath(args):
         
         #if offset is specified, add padding at the beginning of the image
         if args.offset > 0:
-            print(f"Padding image with {args.offset} bytes at the beginning")
+            print(f"Padding image with {sizeof_fmt(args.offset)} at the beginning")
             fs.context.buffer = bytearray(args.offset) + fs.context.buffer
             
         # Dump the filesystem content to a file
@@ -320,6 +320,7 @@ def create_image():
 
     globPath(args)
 
-    print(
-        f"Created `{args.image}` of size [{args.blockSize} x {args.blockCount}] = {sizeof_fmt(args.blockSize*args.blockCount)}"
-    )
+    if args.offset > 0:
+        print(f"Created `{args.image}` of size [({sizeof_fmt(args.blockSize)} x {args.blockCount}) + {sizeof_fmt(args.offset)}] = {sizeof_fmt((args.blockSize*args.blockCount)+args.offset)}")
+    else:
+        print(f"Created `{args.image}` of size [{sizeof_fmt(args.blockSize)} x {args.blockCount}] = {sizeof_fmt(args.blockSize*args.blockCount)}")
