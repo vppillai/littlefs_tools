@@ -34,6 +34,8 @@ optional arguments:
                         block Count of the LFS image (defaults to 64)
   -i IMAGE, --image IMAGE
                         image file name
+  -o OFFSET, --offset OFFSET
+                        offset (in bytes) from which the littlefs image starts(defaults to 0). Hex values are supported (e.g. 0x80000)
   -v, --verbose         Verbose
 
 required arguments:

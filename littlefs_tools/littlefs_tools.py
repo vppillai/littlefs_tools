@@ -260,7 +260,12 @@ def globPath(args):
                             fh.write(byte)
                             byte = file.read(1)
         print(f"\nTotal Contents size = {sizeof_fmt(contentSize)}")
-
+        
+        #if offset is specified, add padding at the beginning of the image
+        if args.offset > 0:
+            print(f"Padding image with {args.offset} bytes at the beginning")
+            fs.context.buffer = bytearray(args.offset) + fs.context.buffer
+            
         # Dump the filesystem content to a file
         with open(args.image, "wb") as fh:
             fh.write(fs.context.buffer)
@@ -294,6 +299,14 @@ def create_image():
     parser.add_argument(
         "-i", "--image", dest="image", help="image file name", default="test.bin"
     )
+    parser.add_argument(
+        "-o",
+        "--offset",
+        dest="offset",
+        help="offset (in bytes) from which the littlefs image starts(defaults to 0). Hex values are supported (e.g. 0x80000)",
+        type=str,
+        default="0",
+    )
     parser.add_argument("-v", "--verbose", help="Verbose", action="store_true")
 
     requiredNamed = parser.add_argument_group("required arguments")
@@ -303,6 +316,7 @@ def create_image():
     args = parser.parse_args()
 
     set_log_level(args.verbose)
+    args.offset = _offset_to_int(args.offset)
 
     globPath(args)
 
