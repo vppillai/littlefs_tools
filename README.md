@@ -96,6 +96,8 @@ required arguments:
 
 ## Building the package locally
 
+Make sure that you have `setuptools` and `wheel` installed:
+
 The tools package can be built locally using the following command:
 
 ```bash
