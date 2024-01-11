@@ -6,15 +6,15 @@ on:
     - '*'
   workflow_dispatch:
 
-permissions:
-  id-token: write # This is required for requesting the JWT
-  contents: read  # This is required for actions/checkout
-  
 jobs:
   build_wheel:
     name: Build wheel and publish to pypi
     runs-on: ubuntu-latest
-    
+    environment:
+      name: pypi
+      url: https://pypi.org/p/littlefs-tools
+    permissions:
+      id-token: write # This is required for requesting the OCID JWT
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python 3.11
