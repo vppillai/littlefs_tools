@@ -12,7 +12,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/vppillai/littlefs_tools",
     author="Vysakh P Pillai",
-    author_email="vysakhpillai@embeddedinn.xyz",
+    author_email="vysakhpillai@embeddedinn.com",
     license="MIT",
     packages=["littlefs_tools"],
     install_requires=["littlefs-python", "colorama"],
@@ -24,7 +24,7 @@ setup(
         ],
     },
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
         "Topic :: Scientific/Engineering",
