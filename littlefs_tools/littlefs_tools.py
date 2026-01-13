@@ -232,14 +232,14 @@ def globPath(args):
         contentSize = 0
         for path, subdirs, files in os.walk(args.source):
             for subdir in subdirs:
-                lfsDir = os.path.join("/", remove_prefix(path, args.source), subdir)
+                lfsDir = os.path.join("/", remove_prefix(path, args.source), subdir).replace("\\","/")
                 if "/" != lfsDir:
-                    fs.mkdir(lfsDir)
                     logger.info(f"LFS Directory : {lfsDir}")
+                    fs.mkdir(lfsDir)
 
             for name in files:
                 filePath = os.path.join(path, name)
-                lfsPath = os.path.join("/", remove_prefix(filePath, args.source))
+                lfsPath = os.path.join("/", remove_prefix(filePath, args.source)).replace("\\","/")
 
                 with open(filePath, "rb") as file:
                     fileSize = os.path.getsize(filePath)
