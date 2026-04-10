@@ -4,3 +4,14 @@ dist/
 littlefs_tools.egg-info/
 .vscode
 test/testSource*
+
+# Testing
+.pytest_cache/
+__pycache__/
+*.pyc
+
+# Ruff
+.ruff_cache/
+
+# Build
+*.egg-info/
