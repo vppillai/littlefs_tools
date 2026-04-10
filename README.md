@@ -3,11 +3,11 @@
 [![Build Result](https://github.com/vppillai/littlefs_tools/workflows/Build_Tests/badge.svg)](https://github.com/vppillai/littlefs_tools/actions)
 [![PIP Version](https://badge.fury.io/py/littlefs-tools.svg)](https://badge.fury.io/py/littlefs-tools)
 
-Tools create, view and extract [littleFS](https://github.com/littlefs-project/littlefs) filesystem images.
+Tools to create, view, and extract [littleFS](https://github.com/littlefs-project/littlefs) filesystem images.
 
-Though distributed as a python module, these tools are intended to be executed as a command-line tool. Consequently, the code is written into a single python file without classes. The Invocation commands are provided below.
+Though distributed as a Python module, these tools are intended to be executed as command-line tools. The invocation commands are provided below.
 
-*Attribution*: `littlefs_tools` are built on top of [littlefs-python](https://github.com/jrast/littlefs-python). To use littlefs functionality within your python code, please use `littlefs-python` directly.
+*Attribution*: `littlefs_tools` is built on top of [littlefs-python](https://github.com/jrast/littlefs-python). To use littleFS functionality within your Python code, use `littlefs-python` directly.
 
 ## Installation
 
@@ -15,77 +15,88 @@ Though distributed as a python module, these tools are intended to be executed a
 pip install littlefs_tools
 ```
 
+Requires Python 3.9 or later.
+
 ## Usage
 
-### littlefs_create
+### Unified CLI
 
-Tool to create a littleFS filesystem binary image. This tool recursively packages the contents of a source directory into a littlefs image.
+All commands are available under a single `littlefs` command:
 
 ```bash
-usage: littlefs_create [-h] [-b BLOCKSIZE] [-c BLOCKCOUNT] [-i IMAGE] [-v] -s SOURCE
+littlefs create -s <source_dir> -i <image_file> [-b BLOCK_SIZE] [-c BLOCK_COUNT] [-o OFFSET] [-v]
+littlefs list -i <image_file> [-b BLOCK_SIZE] [-c BLOCK_COUNT] [-o OFFSET] [-v]
+littlefs extract -i <image_file> -d <destination> [-b BLOCK_SIZE] [-c BLOCK_COUNT] [-o OFFSET] [-f] [-v]
+```
 
-Tool to generate lfs images from a source folder
+Run `littlefs --help` for full usage, or `littlefs <command> --help` for command-specific help.
+
+### littlefs create
+
+Package a directory into a littleFS binary image.
+
+```
+usage: littlefs create [-h] [-b BLOCK_SIZE] [-c BLOCK_COUNT] [-o OFFSET] [-v] -s SOURCE -i IMAGE
 
 optional arguments:
   -h, --help            show this help message and exit
-  -b BLOCKSIZE, --block_size BLOCKSIZE
+  -b BLOCK_SIZE, --block_size BLOCK_SIZE
                         block size of the LFS image (defaults to 4096)
-  -c BLOCKCOUNT, --block_count BLOCKCOUNT
-                        block Count of the LFS image (defaults to 64)
+  -c BLOCK_COUNT, --block_count BLOCK_COUNT
+                        block count of the LFS image (defaults to 64)
   -i IMAGE, --image IMAGE
-                        image file name
+                        output image file name
   -o OFFSET, --offset OFFSET
-                        offset (in bytes) from which the littlefs image starts(defaults to 0). Hex values are supported (e.g. 0x80000)
-  -v, --verbose         Verbose
+                        offset (in bytes) from which the littlefs image starts
+                        (defaults to 0). Hex values are supported (e.g. 0x80000)
+  -v, --verbose         enable verbose/debug output
 
 required arguments:
   -s SOURCE, --source SOURCE
-                        source path
+                        source directory path
 ```
 
-### littlefs_list
+### littlefs list
 
-Tool to list contents of a littleFS filesystem image as a tree.
+Display the file tree of a littleFS binary image.
 
-```bash
-usage: littlefs_list [-h] [-b BLOCKSIZE] [-c BLOCKCOUNT] [-o OFFSET] [-v] -i IMAGE
-
-Tool to list files in a littlefs file image
+```
+usage: littlefs list [-h] [-b BLOCK_SIZE] [-c BLOCK_COUNT] [-o OFFSET] [-v] -i IMAGE
 
 optional arguments:
   -h, --help            show this help message and exit
-  -b BLOCKSIZE, --block_size BLOCKSIZE
+  -b BLOCK_SIZE, --block_size BLOCK_SIZE
                         block size of the LFS image (defaults to 4096)
-  -c BLOCKCOUNT, --block_count BLOCKCOUNT
-                        block Count of the LFS image (defaults to 64)
+  -c BLOCK_COUNT, --block_COUNT BLOCK_COUNT
+                        block count of the LFS image (defaults to 64)
   -o OFFSET, --offset OFFSET
-                        offset (in bytes) from which the littlefs image starts(defaults to 0). Hex values are supported (e.g. 0x80000)
-  -v, --verbose         Verbose
+                        offset (in bytes) from which the littlefs image starts
+                        (defaults to 0). Hex values are supported (e.g. 0x80000)
+  -v, --verbose         enable verbose/debug output
 
 required arguments:
   -i IMAGE, --image IMAGE
                         image file name
 ```
 
-### littlefs_extract
+### littlefs extract
 
-Tool to extract contents of a littleFS filesystem image to a destination folder.
+Extract all files from a littleFS binary image to a directory.
 
-```bash
-usage: littlefs_extract [-h] [-b BLOCKSIZE] [-c BLOCKCOUNT] [-f] [-o OFFSET] [-v] -i IMAGE -d DESTINATION
-
-Tool to extract files from a littlefs file image
+```
+usage: littlefs extract [-h] [-b BLOCK_SIZE] [-c BLOCK_COUNT] [-o OFFSET] [-f] [-v] -i IMAGE -d DESTINATION
 
 optional arguments:
   -h, --help            show this help message and exit
-  -b BLOCKSIZE, --block_size BLOCKSIZE
+  -b BLOCK_SIZE, --block_size BLOCK_SIZE
                         block size of the LFS image (defaults to 4096)
-  -c BLOCKCOUNT, --block_count BLOCKCOUNT
-                        block Count of the LFS image (defaults to 64)
-  -f, --force           Force extract even if destination folder is not empty
+  -c BLOCK_COUNT, --block_count BLOCK_COUNT
+                        block count of the LFS image (defaults to 64)
   -o OFFSET, --offset OFFSET
-                        offset (in bytes) from which the littlefs image starts(defaults to 0). Hex values are supported (e.g. 0x80000)
-  -v, --verbose         Verbose
+                        offset (in bytes) from which the littlefs image starts
+                        (defaults to 0). Hex values are supported (e.g. 0x80000)
+  -f, --force           force extract even if destination folder is not empty
+  -v, --verbose         enable verbose/debug output
 
 required arguments:
   -i IMAGE, --image IMAGE
@@ -94,29 +105,40 @@ required arguments:
                         destination directory to extract the contents into
 ```
 
-## Building the package locally
+### Legacy Commands
 
-Make sure that you have `setuptools` and `wheel` installed:
-
-The tools package can be built locally using the following command:
+The original standalone commands are still available for backward compatibility:
 
 ```bash
-python setup.py bdist_wheel --universal
+littlefs_create -s <source_dir> -i <image_file> [options]
+littlefs_list -i <image_file> [options]
+littlefs_extract -i <image_file> -d <destination> [options]
 ```
 
-And then installed with
+## Building the Package Locally
+
+Install build tools and build:
 
 ```bash
-pip install dist/littlefs_tools-1.0.0-py2.py3-none-any.whl  --force
+pip install build
+python -m build
 ```
 
-> Note: The wheel package must match the version of the package. The version of the package is determined by the version of the package in the `setup.py` file.
+This produces both a source distribution and a wheel in the `dist/` directory.
 
-Source distribution is created with the following command:
+Install the built wheel:
 
 ```bash
-python setup.py sdist
+pip install dist/littlefs_tools-*.whl
 ```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, testing, and pull request guidelines.
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for a list of changes in each release.
 
 -----------------
 _littlefs-tools_  |  _ലിറ്റിലെഫ്എസ്-ഉപകരണങ്ങൾ_
