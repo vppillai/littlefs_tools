@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "littlefs_tools"
+version = "1.2.0"
+description = "Python tools to create, view, and extract littleFS filesystem images"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+authors = [
+    {name = "Vysakh P Pillai", email = "vysakhpillai@embeddedinn.com"},
+]
+dependencies = [
+    "littlefs-python>=0.12.0",
+    "colorama>=0.4.0",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Scientific/Engineering",
+    "Topic :: System :: Filesystems",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+
+[project.urls]
+Homepage = "https://github.com/vppillai/littlefs_tools"
+Repository = "https://github.com/vppillai/littlefs_tools"
+Issues = "https://github.com/vppillai/littlefs_tools/issues"
+
+[project.scripts]
+littlefs = "littlefs_tools.littlefs_tools:main"
+littlefs_create = "littlefs_tools.littlefs_tools:create_image"
+littlefs_list = "littlefs_tools.littlefs_tools:list_files"
+littlefs_extract = "littlefs_tools.littlefs_tools:extract_files"
+
+[tool.setuptools.packages.find]
+include = ["littlefs_tools*"]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
