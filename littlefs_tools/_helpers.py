@@ -87,6 +87,47 @@ def validate_block_count(block_count: int) -> None:
         )
 
 
+def load_config(path: str) -> dict:
+    """Load a JSON or YAML configuration file.
+
+    JSON files are always supported. YAML requires the optional ``pyyaml``
+    package (``pip install littlefs_tools[config]``).
+
+    Args:
+        path: Path to the config file (.json, .yaml, or .yml).
+
+    Returns:
+        Configuration dict.
+
+    Raises:
+        FileNotFoundError: If the config file does not exist.
+        ValidationError: If the file format is unsupported or parsing fails.
+    """
+    import json as json_mod
+
+    if not os.path.isfile(path):
+        raise FileNotFoundError(f"Config file not found: {path}")
+
+    if path.endswith((".yaml", ".yml")):
+        try:
+            import yaml
+        except ImportError as exc:
+            raise ValidationError(
+                "PyYAML required for YAML config files: pip install littlefs_tools[config]"
+            ) from exc
+        with open(path) as f:
+            try:
+                return yaml.safe_load(f) or {}
+            except Exception as exc:
+                raise ValidationError(f"Failed to parse YAML config: {exc}") from exc
+    else:
+        with open(path) as f:
+            try:
+                return json_mod.load(f)
+            except Exception as exc:
+                raise ValidationError(f"Failed to parse JSON config: {exc}") from exc
+
+
 def _configure_logging(verbose: bool) -> None:
     """Set up the module logger.
 

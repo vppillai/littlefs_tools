@@ -15,6 +15,7 @@ from littlefs_tools._helpers import (
     _common_parser,
     _configure_logging,
     _legacy_parser,
+    load_config,
     logger,
     parse_offset,
     parse_size,
@@ -24,12 +25,14 @@ from littlefs_tools.operations import (
     do_add,  # noqa: F401 (used by Task 4 CLI dispatch)
     do_cat,
     do_create,
+    do_diff,
     do_du,
     do_extract,
     do_info,
     do_list,
     do_remove,  # noqa: F401 (used by Task 4 CLI dispatch)
     do_rename,  # noqa: F401 (used by Task 4 CLI dispatch)
+    do_verify,
 )
 
 # ---------------------------------------------------------------------------
@@ -51,6 +54,7 @@ def main(argv: list[str] | None = None) -> None:
         action="version",
         version=f"%(prog)s {__version__}",
     )
+    parser.add_argument("--config", dest="config_file", help="JSON or YAML config file for default options")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     # -- create --------------------------------------------------------
@@ -122,6 +126,17 @@ def main(argv: list[str] | None = None) -> None:
         "-f", "--force",
         help="force extract even if destination is not empty",
         action="store_true",
+    )
+    sp_extract.add_argument(
+        "--file",
+        dest="extract_paths",
+        nargs="*",
+        help="specific file path(s) to extract",
+    )
+    sp_extract.add_argument(
+        "--pattern",
+        dest="extract_pattern",
+        help="glob pattern to filter files (e.g. '*.txt')",
     )
 
     # -- info ----------------------------------------------------------
@@ -268,7 +283,54 @@ def main(argv: list[str] | None = None) -> None:
         help="new path inside the image",
     )
 
+    # -- verify --------------------------------------------------------
+    sp_verify = subparsers.add_parser(
+        "verify",
+        parents=[parent],
+        help="validate image integrity",
+        description="Check a littleFS image for corruption and consistency.",
+    )
+    sp_verify.add_argument(
+        "-i", "--image",
+        dest="image",
+        help="image file name",
+        required=True,
+    )
+
+    # -- diff ----------------------------------------------------------
+    sp_diff = subparsers.add_parser(
+        "diff",
+        parents=[parent],
+        help="compare two images",
+        description="Compare two littleFS images and show differences.",
+    )
+    sp_diff.add_argument(
+        "image1",
+        help="first image file",
+    )
+    sp_diff.add_argument(
+        "image2",
+        help="second image file",
+    )
+    sp_diff.add_argument(
+        "--format",
+        dest="output_format",
+        choices=["table", "json"],
+        default="table",
+        help="output format",
+    )
+
     args = parser.parse_args(argv)
+
+    # Merge config file if specified
+    if args.config_file:
+        config = load_config(args.config_file)
+        for key, value in config.items():
+            key = key.replace("-", "_")
+            # CLI args take precedence (non-default values)
+            if not hasattr(args, key) or getattr(args, key) is None:
+                setattr(args, key, value)
+
     _configure_logging(args.verbose)
 
     try:
@@ -319,6 +381,8 @@ def main(argv: list[str] | None = None) -> None:
                     offset=offset,
                     destination=args.destination,
                     force=args.force,
+                    paths=getattr(args, "extract_paths", None),
+                    pattern=getattr(args, "extract_pattern", None),
                 )
             elif args.command == "info":
                 info = do_info(

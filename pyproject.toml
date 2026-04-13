@@ -39,6 +39,9 @@ Homepage = "https://github.com/vppillai/littlefs_tools"
 Repository = "https://github.com/vppillai/littlefs_tools"
 Issues = "https://github.com/vppillai/littlefs_tools/issues"
 
+[project.optional-dependencies]
+config = ["pyyaml>=6.0"]
+
 [project.scripts]
 littlefs = "littlefs_tools.littlefs_tools:main"
 littlefs_create = "littlefs_tools.littlefs_tools:create_image"
