@@ -58,6 +58,24 @@ class TestDoList:
                 offset=0,
             )
 
+    def test_list_json_format(self, sample_image: Path, capsys: pytest.CaptureFixture[str]) -> None:
+        """JSON output contains expected entries."""
+        import json
+
+        do_list(image=str(sample_image), output_format="json")
+        output = capsys.readouterr().out
+        entries = json.loads(output)
+        assert isinstance(entries, list)
+        paths = [e["path"] for e in entries]
+        assert any("test_dir1" in p for p in paths)
+
+    def test_list_csv_format(self, sample_image: Path, capsys: pytest.CaptureFixture[str]) -> None:
+        """CSV output has header and expected data."""
+        do_list(image=str(sample_image), output_format="csv")
+        output = capsys.readouterr().out
+        assert "path,type,size" in output
+        assert "test_dir1" in output
+
     def test_list_invalid_block_size(self, sample_image: Path) -> None:
         """Raise ValidationError for a non-power-of-2 block size."""
         with pytest.raises(ValidationError, match="power of 2"):
