@@ -14,11 +14,11 @@ def sample_tree(tmp_path: Path) -> Path:
     for i in range(1, 4):
         d = src / f"test_dir{i}"
         d.mkdir(parents=True)
-        (d / f"test_dir{i}.txt").write_text(f"test_dir{i}\n")
+        (d / f"test_dir{i}.txt").write_bytes(f"test_dir{i}\n".encode())
         for j in range(1, 3):
             sd = d / f"test_dir{i}_{j}"
             sd.mkdir()
-            (sd / f"test_dir{i}_{j}.txt").write_text(f"test_dir{i}_{j}\n")
+            (sd / f"test_dir{i}_{j}.txt").write_bytes(f"test_dir{i}_{j}\n".encode())
     return src
 
 

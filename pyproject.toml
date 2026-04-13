@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "littlefs_tools"
-version = "1.2.0"
+version = "1.3.0"
 description = "Python tools to create, view, and extract littleFS filesystem images"
 readme = "README.md"
 license = {text = "MIT"}
@@ -38,6 +38,9 @@ classifiers = [
 Homepage = "https://github.com/vppillai/littlefs_tools"
 Repository = "https://github.com/vppillai/littlefs_tools"
 Issues = "https://github.com/vppillai/littlefs_tools/issues"
+
+[project.optional-dependencies]
+config = ["pyyaml>=6.0"]
 
 [project.scripts]
 littlefs = "littlefs_tools.littlefs_tools:main"
