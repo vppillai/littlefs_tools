@@ -225,11 +225,33 @@ def do_create(
 
     print(f"\nTotal contents size = {sizeof_fmt(content_size)}")
 
-    buffer = fs.context.buffer
     if compact:
         used = fs.used_block_count
-        buffer = buffer[:used * block_size]
+        # Rebuild with exact block_count so the superblock is consistent
+        fs_compact = LittleFS(block_size=block_size, block_count=used)
+        for path_w, subdirs_w, files_w in os.walk(source):
+            for subdir in subdirs_w:
+                lfs_dir = os.path.join(
+                    "/", path_w.removeprefix(source), subdir,
+                ).replace("\\", "/")
+                if lfs_dir != "/":
+                    fs_compact.mkdir(lfs_dir)
+            for name_w in files_w:
+                file_path_w = os.path.join(path_w, name_w)
+                lfs_path_w = os.path.join(
+                    "/", file_path_w.removeprefix(source),
+                ).replace("\\", "/")
+                with open(file_path_w, "rb") as src_w:
+                    with fs_compact.open(lfs_path_w, "wb") as dst_w:
+                        while True:
+                            chunk = src_w.read(READ_CHUNK_SIZE)
+                            if not chunk:
+                                break
+                            dst_w.write(chunk)
+        buffer = fs_compact.context.buffer
         print(f"Compact mode: trimmed to {used} blocks ({sizeof_fmt(len(buffer))})")
+    else:
+        buffer = fs.context.buffer
 
     # Prepend zero-padding for offset if specified
     if offset > 0:
