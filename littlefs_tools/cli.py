@@ -22,16 +22,22 @@ from littlefs_tools._helpers import (
     sizeof_fmt,
 )
 from littlefs_tools.operations import (
-    do_add,  # noqa: F401 (used by Task 4 CLI dispatch)
+    do_add,
     do_cat,
     do_create,
     do_diff,
     do_du,
     do_extract,
+    do_gc,  # noqa: F401 (used by Task 6 CLI dispatch)
+    do_getattr,  # noqa: F401 (used by Task 6 CLI dispatch)
+    do_grow,  # noqa: F401 (used by Task 6 CLI dispatch)
     do_info,
     do_list,
-    do_remove,  # noqa: F401 (used by Task 4 CLI dispatch)
-    do_rename,  # noqa: F401 (used by Task 4 CLI dispatch)
+    do_remove,
+    do_removeattr,  # noqa: F401 (used by Task 6 CLI dispatch)
+    do_rename,
+    do_repair,  # noqa: F401 (used by Task 6 CLI dispatch)
+    do_setattr,  # noqa: F401 (used by Task 6 CLI dispatch)
     do_verify,
 )
 
@@ -80,6 +86,42 @@ def main(argv: list[str] | None = None) -> None:
         "--compact",
         action="store_true",
         help="trim image to used blocks only",
+    )
+    sp_create.add_argument(
+        "--name-max", dest="name_max", type=int, default=0,
+        help="max filename length (0=default 255)",
+    )
+    sp_create.add_argument(
+        "--file-max", dest="file_max", type=int, default=0,
+        help="max file size (0=unlimited)",
+    )
+    sp_create.add_argument(
+        "--attr-max", dest="attr_max", type=int, default=0,
+        help="max attribute size (0=default)",
+    )
+    sp_create.add_argument(
+        "--read-size", dest="read_size", type=int, default=0,
+        help="read size (0=default)",
+    )
+    sp_create.add_argument(
+        "--prog-size", dest="prog_size", type=int, default=0,
+        help="prog size (0=default)",
+    )
+    sp_create.add_argument(
+        "--cache-size", dest="cache_size", type=int, default=0,
+        help="cache size (0=default)",
+    )
+    sp_create.add_argument(
+        "--lookahead-size", dest="lookahead_size", type=int, default=0,
+        help="lookahead size (0=default)",
+    )
+    sp_create.add_argument(
+        "--block-cycles", dest="block_cycles", type=int, default=-1,
+        help="block cycles (-1=disable wear leveling)",
+    )
+    sp_create.add_argument(
+        "--disk-version", dest="disk_version", type=int, default=0,
+        help="disk version (0=latest)",
     )
 
     # -- list ----------------------------------------------------------
@@ -320,6 +362,72 @@ def main(argv: list[str] | None = None) -> None:
         help="output format",
     )
 
+    # -- attr ----------------------------------------------------------
+    sp_attr = subparsers.add_parser(
+        "attr",
+        parents=[parent],
+        help="manage extended attributes",
+        description="Get, set, or remove extended attributes on files "
+        "in a littleFS image.",
+    )
+    sp_attr.add_argument(
+        "-i", "--image", dest="image", help="image file name", required=True,
+    )
+    sp_attr.add_argument(
+        "--action", choices=["get", "set", "remove"], required=True,
+        help="action to perform",
+    )
+    sp_attr.add_argument("--path", required=True, help="path inside the image")
+    sp_attr.add_argument(
+        "--type", dest="attr_type", type=int, required=True,
+        help="attribute type ID (0-255)",
+    )
+    sp_attr.add_argument(
+        "--data", dest="attr_data",
+        help="attribute data as hex string (for set)",
+    )
+
+    # -- gc ------------------------------------------------------------
+    sp_gc = subparsers.add_parser(
+        "gc",
+        parents=[parent],
+        help="run garbage collection",
+        description="Run garbage collection on a littleFS image.",
+    )
+    sp_gc.add_argument(
+        "-i", "--image", dest="image", help="image file name", required=True,
+    )
+
+    # -- grow ----------------------------------------------------------
+    sp_grow = subparsers.add_parser(
+        "grow",
+        parents=[parent],
+        help="grow image size",
+        description="Grow a littleFS image to a larger size.",
+    )
+    sp_grow.add_argument(
+        "-i", "--image", dest="image", help="image file name", required=True,
+    )
+    sp_grow_size = sp_grow.add_mutually_exclusive_group(required=True)
+    sp_grow_size.add_argument(
+        "--new-block-count", dest="new_block_count", type=int,
+        help="target block count",
+    )
+    sp_grow_size.add_argument(
+        "--new-size", dest="new_size", help="target size (e.g. 512kb, 1mb)",
+    )
+
+    # -- repair --------------------------------------------------------
+    sp_repair = subparsers.add_parser(
+        "repair",
+        parents=[parent],
+        help="repair inconsistent image",
+        description="Run mkconsistent on a littleFS image.",
+    )
+    sp_repair.add_argument(
+        "-i", "--image", dest="image", help="image file name", required=True,
+    )
+
     args = parser.parse_args(argv)
 
     # Merge config file if specified
@@ -364,6 +472,15 @@ def main(argv: list[str] | None = None) -> None:
                     block_count=block_count,
                     offset=offset,
                     compact=args.compact,
+                    name_max=args.name_max,
+                    file_max=args.file_max,
+                    attr_max=args.attr_max,
+                    read_size=args.read_size,
+                    prog_size=args.prog_size,
+                    cache_size=args.cache_size,
+                    lookahead_size=args.lookahead_size,
+                    block_cycles=args.block_cycles,
+                    disk_version=args.disk_version,
                 )
             elif args.command == "list":
                 do_list(
@@ -459,6 +576,104 @@ def main(argv: list[str] | None = None) -> None:
                     block_size=block_size,
                     block_count=block_count,
                     offset=offset,
+                )
+            elif args.command == "verify":
+                result = do_verify(
+                    image=args.image,
+                    block_size=block_size,
+                    block_count=block_count,
+                    offset=offset,
+                )
+                if result["valid"]:
+                    print(f"Image {args.image} is valid")
+                    print(f"  Checks passed: {', '.join(result['checks_passed'])}")
+                else:
+                    print(f"Image {args.image} has errors:")
+                    for err in result["errors"]:
+                        print(f"  ERROR: {err}")
+                    sys.exit(1)
+            elif args.command == "diff":
+                diff_result = do_diff(
+                    image1=args.image1,
+                    image2=args.image2,
+                    block_size=block_size,
+                    block_count=block_count,
+                    offset=offset,
+                )
+                if args.output_format == "json":
+                    import json
+                    print(json.dumps(diff_result, indent=2))
+                else:
+                    if diff_result["only_in_1"]:
+                        print(f"Only in {args.image1}:")
+                        for p in diff_result["only_in_1"]:
+                            print(f"  - {p}")
+                    if diff_result["only_in_2"]:
+                        print(f"Only in {args.image2}:")
+                        for p in diff_result["only_in_2"]:
+                            print(f"  + {p}")
+                    if diff_result["different"]:
+                        print("Modified:")
+                        for p in diff_result["different"]:
+                            print(f"  ~ {p}")
+                    if (
+                        not diff_result["only_in_1"]
+                        and not diff_result["only_in_2"]
+                        and not diff_result["different"]
+                    ):
+                        print("Images are identical")
+            elif args.command == "attr":
+                if args.action == "get":
+                    data = do_getattr(
+                        image=args.image, path=args.path,
+                        attr_type=args.attr_type,
+                        block_size=block_size, block_count=block_count,
+                        offset=offset,
+                    )
+                    print(data.hex())
+                elif args.action == "set":
+                    if not args.attr_data:
+                        print(
+                            "Error: --data required for set action",
+                            file=sys.stderr,
+                        )
+                        sys.exit(1)
+                    do_setattr(
+                        image=args.image, path=args.path,
+                        attr_type=args.attr_type,
+                        data=bytes.fromhex(args.attr_data),
+                        block_size=block_size, block_count=block_count,
+                        offset=offset,
+                    )
+                    print(f"Set attr type {args.attr_type} on {args.path}")
+                elif args.action == "remove":
+                    do_removeattr(
+                        image=args.image, path=args.path,
+                        attr_type=args.attr_type,
+                        block_size=block_size, block_count=block_count,
+                        offset=offset,
+                    )
+                    print(
+                        f"Removed attr type {args.attr_type} from {args.path}"
+                    )
+            elif args.command == "gc":
+                used = do_gc(
+                    image=args.image, block_size=block_size,
+                    block_count=block_count, offset=offset,
+                )
+                print(f"Garbage collection complete. Used blocks: {used}")
+            elif args.command == "grow":
+                do_grow(
+                    image=args.image,
+                    new_block_count=getattr(args, "new_block_count", None),
+                    new_size=getattr(args, "new_size", None),
+                    block_size=block_size, block_count=block_count,
+                    offset=offset,
+                )
+            elif args.command == "repair":
+                do_repair(
+                    image=args.image, block_size=block_size,
+                    block_count=block_count, offset=offset,
                 )
     except LittleFSToolsError as exc:
         logger.critical("%s", exc)

@@ -107,6 +107,22 @@ class TestDoCreate:
         assert image.exists()
         assert image.stat().st_size == 4096 * 8
 
+    def test_create_custom_name_max(self, tmp_path: Path, sample_tree: Path) -> None:
+        """Creating with custom name_max propagates the setting."""
+        image = tmp_path / "out.bin"
+        do_create(
+            source=str(sample_tree),
+            image=str(image),
+            block_size=4096,
+            block_count=64,
+            offset=0,
+            name_max=64,
+        )
+        from littlefs_tools.littlefs_tools import do_info
+
+        info = do_info(image=str(image))
+        assert info["name_max"] == 64
+
 
 class TestRoundTrip:
     """End-to-end: create -> extract -> compare."""

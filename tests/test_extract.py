@@ -81,3 +81,26 @@ class TestDoExtract:
                 offset=0,
                 destination=str(tmp_path / "out"),
             )
+
+    def test_extract_specific_file(self, tmp_path: Path, sample_image: Path) -> None:
+        """Extract only specific file paths."""
+        dest = tmp_path / "out"
+        do_extract(
+            image=str(sample_image),
+            destination=str(dest),
+            paths=["/test_dir1/test_dir1.txt"],
+        )
+        assert (dest / "test_dir1" / "test_dir1.txt").exists()
+        # Files in other directories should not be extracted
+        assert not (dest / "test_dir2" / "test_dir2.txt").exists()
+        assert not (dest / "test_dir3" / "test_dir3.txt").exists()
+
+    def test_extract_pattern(self, tmp_path: Path, sample_image: Path) -> None:
+        """Extract only files matching a glob pattern."""
+        dest = tmp_path / "out"
+        do_extract(
+            image=str(sample_image),
+            destination=str(dest),
+            pattern="test_dir1.txt",
+        )
+        assert (dest / "test_dir1" / "test_dir1.txt").exists()
