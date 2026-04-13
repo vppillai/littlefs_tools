@@ -3,18 +3,21 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
+import io
 import sys
 
 from colorama import init
 
 from littlefs_tools import __version__
-from littlefs_tools._exceptions import LittleFSToolsError
+from littlefs_tools._exceptions import LittleFSToolsError, ValidationError
 from littlefs_tools._helpers import (
     _common_parser,
     _configure_logging,
     _legacy_parser,
     logger,
     parse_offset,
+    parse_size,
 )
 from littlefs_tools.operations import do_create, do_extract, do_list
 
@@ -104,30 +107,50 @@ def main(argv: list[str] | None = None) -> None:
     try:
         offset = parse_offset(args.offset)
 
-        if args.command == "create":
-            do_create(
-                source=args.source,
-                image=args.image,
-                block_size=args.block_size,
-                block_count=args.block_count,
-                offset=offset,
-            )
-        elif args.command == "list":
-            do_list(
-                image=args.image,
-                block_size=args.block_size,
-                block_count=args.block_count,
-                offset=offset,
-            )
-        elif args.command == "extract":
-            do_extract(
-                image=args.image,
-                block_size=args.block_size,
-                block_count=args.block_count,
-                offset=offset,
-                destination=args.destination,
-                force=args.force,
-            )
+        # Resolve --fs-size vs --block_count
+        block_size = args.block_size
+        block_count = args.block_count
+
+        if args.fs_size is not None:
+            if args.block_count is not None:
+                raise ValidationError(
+                    "Cannot specify both --block_count and --fs-size"
+                )
+            fs_bytes = parse_size(args.fs_size)
+            bs = block_size if block_size is not None else 4096
+            block_count = fs_bytes // bs
+
+        ctx = contextlib.redirect_stdout(io.StringIO()) if args.quiet else contextlib.nullcontext()
+        with ctx:
+            if args.command == "create":
+                # Apply defaults for create (create always needs explicit values)
+                if block_size is None:
+                    block_size = 4096
+                if block_count is None:
+                    block_count = 64
+                do_create(
+                    source=args.source,
+                    image=args.image,
+                    block_size=block_size,
+                    block_count=block_count,
+                    offset=offset,
+                )
+            elif args.command == "list":
+                do_list(
+                    image=args.image,
+                    block_size=block_size,
+                    block_count=block_count,
+                    offset=offset,
+                )
+            elif args.command == "extract":
+                do_extract(
+                    image=args.image,
+                    block_size=block_size,
+                    block_count=block_count,
+                    offset=offset,
+                    destination=args.destination,
+                    force=args.force,
+                )
     except LittleFSToolsError as exc:
         logger.critical("%s", exc)
         sys.exit(1)
@@ -172,8 +195,8 @@ def create_image() -> None:
         do_create(
             source=args.source,
             image=args.image,
-            block_size=args.block_size,
-            block_count=args.block_count,
+            block_size=args.block_size or 4096,
+            block_count=args.block_count or 64,
             offset=offset,
         )
     except (LittleFSToolsError, FileNotFoundError) as exc:
@@ -206,8 +229,8 @@ def list_files() -> None:
         offset = parse_offset(args.offset)
         do_list(
             image=args.image,
-            block_size=args.block_size,
-            block_count=args.block_count,
+            block_size=args.block_size or 4096,
+            block_count=args.block_count or 64,
             offset=offset,
         )
     except (LittleFSToolsError, FileNotFoundError) as exc:
@@ -251,8 +274,8 @@ def extract_files() -> None:
         offset = parse_offset(args.offset)
         do_extract(
             image=args.image,
-            block_size=args.block_size,
-            block_count=args.block_count,
+            block_size=args.block_size or 4096,
+            block_count=args.block_count or 64,
             offset=offset,
             destination=args.destination,
             force=args.force,

@@ -17,6 +17,8 @@ from littlefs_tools._helpers import (
     LFS_TYPE_FILE,
     READ_CHUNK_SIZE,
     logger,
+    mount_image,
+    resolve_params,
     sizeof_fmt,
     validate_block_count,
     validate_block_size,
@@ -47,30 +49,26 @@ def print_tree(fs: LittleFS, path: str) -> None:
             print(f"  {'    ' * depth}{Fore.RED}*---{Fore.YELLOW}{item.name}{size_str}")
 
 
-def do_list(image: str, block_size: int, block_count: int, offset: int) -> None:
+def do_list(
+    image: str,
+    block_size: int | None = None,
+    block_count: int | None = None,
+    offset: int = 0,
+) -> None:
     """List the contents of a littleFS image file.
 
     Args:
         image: Path to the littleFS binary image.
-        block_size: LFS block size in bytes.
-        block_count: Number of blocks in the image.
+        block_size: LFS block size in bytes (``None`` to auto-detect).
+        block_count: Number of blocks in the image (``None`` to auto-detect).
         offset: Byte offset where the LFS image starts in the file.
 
     Raises:
         FileNotFoundError: If *image* does not exist.
         LittleFSToolsError: On any LFS operation failure.
     """
-    validate_block_size(block_size)
-    validate_block_count(block_count)
-
-    if not os.path.isfile(image):
-        raise FileNotFoundError(f"Image file not found: {image}")
-
-    fs = LittleFS(block_size=block_size, block_count=block_count, mount=False)
-    with open(image, "rb") as fh:
-        fh.seek(offset)
-        fs.context.buffer = bytearray(fh.read())
-    fs.mount()
+    bs, bc = resolve_params(image, block_size, block_count, offset)
+    fs = mount_image(image, bs, bc, offset)
     print(f"{Fore.GREEN}{image}")
     print_tree(fs, "/")
 
@@ -102,18 +100,18 @@ def _walk_and_extract(fs: LittleFS, path: str, destination: str) -> None:
 
 def do_extract(
     image: str,
-    block_size: int,
-    block_count: int,
-    offset: int,
-    destination: str,
+    block_size: int | None = None,
+    block_count: int | None = None,
+    offset: int = 0,
+    destination: str = ".",
     force: bool = False,
 ) -> None:
     """Extract the contents of a littleFS image to a host directory.
 
     Args:
         image: Path to the littleFS binary image.
-        block_size: LFS block size in bytes.
-        block_count: Number of blocks in the image.
+        block_size: LFS block size in bytes (``None`` to auto-detect).
+        block_count: Number of blocks in the image (``None`` to auto-detect).
         offset: Byte offset where the LFS image starts in the file.
         destination: Directory to extract files into.
         force: If ``False`` and *destination* is non-empty, raise an error.
@@ -122,22 +120,13 @@ def do_extract(
         FileNotFoundError: If *image* does not exist.
         DestinationNotEmptyError: If *destination* is non-empty and *force* is False.
     """
-    validate_block_size(block_size)
-    validate_block_count(block_count)
-
-    if not os.path.isfile(image):
-        raise FileNotFoundError(f"Image file not found: {image}")
-
     if not force and os.path.exists(destination) and os.listdir(destination):
         raise DestinationNotEmptyError(
             f"{destination} is not empty (use --force to overwrite)"
         )
 
-    fs = LittleFS(block_size=block_size, block_count=block_count, mount=False)
-    with open(image, "rb") as fh:
-        fh.seek(offset)
-        fs.context.buffer = bytearray(fh.read())
-    fs.mount()
+    bs, bc = resolve_params(image, block_size, block_count, offset)
+    fs = mount_image(image, bs, bc, offset)
     Path(destination).mkdir(parents=True, exist_ok=True)
     _walk_and_extract(fs, "/", destination)
     print(f"Extracted files to {destination}")
