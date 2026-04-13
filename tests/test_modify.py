@@ -20,7 +20,7 @@ from littlefs_tools.littlefs_tools import (
 class TestDoAdd:
     def test_add_file(self, tmp_path: Path, sample_image: Path) -> None:
         new_file = tmp_path / "new.txt"
-        new_file.write_text("hello world\n")
+        new_file.write_bytes(b"hello world\n")
         do_add(image=str(sample_image), sources=[str(new_file)])
         fs = mount_image(str(sample_image), 4096, 64, 0)
         with fs.open("/new.txt", "rb") as fh:
@@ -28,7 +28,7 @@ class TestDoAdd:
 
     def test_add_to_subdir(self, tmp_path: Path, sample_image: Path) -> None:
         new_file = tmp_path / "sub.txt"
-        new_file.write_text("sub content\n")
+        new_file.write_bytes(b"sub content\n")
         do_add(image=str(sample_image), sources=[str(new_file)], dest="/test_dir1")
         fs = mount_image(str(sample_image), 4096, 64, 0)
         with fs.open("/test_dir1/sub.txt", "rb") as fh:
@@ -37,8 +37,8 @@ class TestDoAdd:
     def test_add_directory(self, tmp_path: Path, sample_image: Path) -> None:
         new_dir = tmp_path / "newdir"
         new_dir.mkdir()
-        (new_dir / "a.txt").write_text("aaa\n")
-        (new_dir / "b.txt").write_text("bbb\n")
+        (new_dir / "a.txt").write_bytes(b"aaa\n")
+        (new_dir / "b.txt").write_bytes(b"bbb\n")
         do_add(image=str(sample_image), sources=[str(new_dir)])
         fs = mount_image(str(sample_image), 4096, 64, 0)
         with fs.open("/a.txt", "rb") as fh:
@@ -46,7 +46,7 @@ class TestDoAdd:
 
     def test_add_preserves_existing(self, tmp_path: Path, sample_image: Path) -> None:
         new_file = tmp_path / "extra.txt"
-        new_file.write_text("extra\n")
+        new_file.write_bytes(b"extra\n")
         do_add(image=str(sample_image), sources=[str(new_file)])
         fs = mount_image(str(sample_image), 4096, 64, 0)
         with fs.open("/test_dir1/test_dir1.txt", "rb") as fh:
