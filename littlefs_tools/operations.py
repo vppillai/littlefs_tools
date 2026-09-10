@@ -298,8 +298,9 @@ def do_create(
 
     if compact:
         used = fs.used_block_count
-        # Rebuild with exact block_count so the superblock is consistent
-        fs_compact = LittleFS(block_size=block_size, block_count=used)
+        compact_kwargs = dict(lfs_kwargs)
+        compact_kwargs["block_count"] = used
+        fs_compact = LittleFS(**compact_kwargs)
         for path_w, subdirs_w, files_w in os.walk(source):
             for subdir in subdirs_w:
                 lfs_dir = os.path.join(
