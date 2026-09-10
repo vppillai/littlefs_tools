@@ -120,8 +120,8 @@ def main(argv: list[str] | None = None) -> None:
         help="block cycles (-1=disable wear leveling)",
     )
     sp_create.add_argument(
-        "--disk-version", dest="disk_version", type=int, default=0,
-        help="disk version (0=latest)",
+        "--disk-version", dest="disk_version", type=parse_offset, default=0,
+        help="disk version (0=latest, hex supported e.g. 0x20000)",
     )
 
     # -- list ----------------------------------------------------------
